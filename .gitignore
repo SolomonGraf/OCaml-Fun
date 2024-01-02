@@ -27,3 +27,8 @@ setup.log
 
 # Local OPAM switch
 _opam/
+ninetynine/dune-project
+ninetynine/ninetynine.opam
+ninetynine/bin/dune
+ninetynine/lib/dune
+ninetynine/test/dune
