@@ -12,6 +12,11 @@ let print_bool bool = print_endline (string_of_bool bool)
 let print_result = make_call_counter print_bool
 let print_test_result test = print_result (test ())
 
+let sublist list sublist =
+  List.for_all (fun x -> List.mem x list) sublist
+
+let equal list1 list2 = sublist list1 list2 && sublist list2 list1
+
 let rec last list =
   begin match list with 
   | [] -> None
@@ -264,9 +269,6 @@ let test () =
 
 ;; print_test_result test
 
-let valid_sublist list sublist =
-  List.for_all (fun x -> List.mem x list) sublist
-
 let rec rand_select (list : 'a list) (amt : int) : 'a list =
   if amt = 0 then [] else
   let index = (Random.int (List.length list)) in
@@ -279,7 +281,7 @@ let rec rand_select (list : 'a list) (amt : int) : 'a list =
 let test () =
   let letter_list = ["a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"] in
   let actual = rand_select letter_list 3 in
-  valid_sublist letter_list actual && (3 = length actual)
+  sublist letter_list actual && (3 = length actual)
 
 ;; print_test_result test
 
@@ -288,7 +290,7 @@ let lotto_select amount bound = rand_select (range 1 bound) amount
 let test () =
   let range = range 1 50 in
   let actual = lotto_select 6 50 in
-  valid_sublist range actual && (6 = length actual)
+  sublist range actual && (6 = length actual)
 
 ;; print_test_result test
 
@@ -297,6 +299,23 @@ let permutation list = rand_select list (length list)
 let test () =
   let letter_list = ["a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"] in
   let actual = permutation letter_list in
-  valid_sublist letter_list actual && (length letter_list = length actual)
+  sublist letter_list actual && (length letter_list = length actual)
+
+;; print_test_result test
+
+let rec extract size list =
+  if size = 0
+  then [[]]
+  else
+    begin match list with 
+    | [] -> []
+    | v :: tail -> let included = (List.map (fun x -> v :: x) (extract (size - 1) tail)) in
+    let excluded = extract (size) tail in included @ excluded
+  end
+
+let test () =
+  let actual = extract 2 ["a"; "b"; "c"; "d"] in
+  let expected = [["a"; "b"]; ["a"; "c"]; ["a"; "d"]; ["b"; "c"]; ["b"; "d"]; ["c"; "d"]] in
+  equal actual expected
 
 ;; print_test_result test
