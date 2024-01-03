@@ -263,3 +263,40 @@ let test () =
   actual = expected
 
 ;; print_test_result test
+
+let valid_sublist list sublist =
+  List.for_all (fun x -> List.mem x list) sublist
+
+let rec rand_select (list : 'a list) (amt : int) : 'a list =
+  if amt = 0 then [] else
+  let index = (Random.int (List.length list)) in
+  let vo = ith list index in
+  begin match vo with
+  | None -> []
+  | Some v -> v :: rand_select (remove list index) (amt - 1)
+  end
+
+let test () =
+  let letter_list = ["a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"] in
+  let actual = rand_select letter_list 3 in
+  valid_sublist letter_list actual && (3 = length actual)
+
+;; print_test_result test
+
+let lotto_select amount bound = rand_select (range 1 bound) amount
+
+let test () =
+  let range = range 1 50 in
+  let actual = lotto_select 6 50 in
+  valid_sublist range actual && (6 = length actual)
+
+;; print_test_result test
+
+let permutation list = rand_select list (length list)
+
+let test () =
+  let letter_list = ["a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"] in
+  let actual = permutation letter_list in
+  valid_sublist letter_list actual && (length letter_list = length actual)
+
+;; print_test_result test
