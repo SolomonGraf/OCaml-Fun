@@ -27,19 +27,30 @@ type ('a, 'b) call_counter = ('a -> 'b) * (unit -> int)
 
 let make_call_counter (f : 'a -> 'b) : ('a, 'b) call_counter =
   let count = ref 0 in
-  let counted_func (v : 'a) = begin
-  count := 1 + !count;
+  let cf (v : 'a) = begin
+  count := succ !count;
   f v
   end in
-  (counted_func, fun () -> !count)
+  (cf, fun () -> !count)
+
+let apply x f = f x
 
 let for_all pred list = fold (&&) true (map pred list)
 let exists pred list = fold (||) false (map pred list)
-let all elem preds = for_all (fun pred -> pred elem) preds
-let any elem preds = exists (fun pred -> pred elem) preds
+let all elem preds = for_all (apply elem) preds
+let any elem preds = exists (apply elem) preds
 
 (* Tree HOFs *)
 
 type 'a tree = Node of 'a * 'a tree list
 
 let rec map_tree f tree = match tree with Node (v, branches) -> Node (f v, map (map_tree f) branches)
+
+let rec fold_tree branch_fold root_fold tree =
+  let Node (root, branches) = tree in
+  root_fold (branch_fold (map (fun x -> fold_tree branch_fold root_fold x) branches)) root
+
+(* Option Functions *)
+
+let apply_opt x f = match x with None -> None | Some x -> Some (f x)
+let bind x f = match x with None -> None | Some x -> f x
