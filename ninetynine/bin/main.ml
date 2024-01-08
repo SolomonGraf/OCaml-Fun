@@ -319,3 +319,13 @@ let test () =
   equal actual expected
 
 ;; print_test_result test
+
+let rec group list sizes =
+  let group_aux size list =
+    let extracts = extract size list in
+    let remaining original extracted = List.filter (fun x -> not (List.mem x original)) extracted in
+    List.map (fun x -> (x, remaining list x)) extracts in
+  begin match sizes with
+  | [] -> [[]]
+  | v :: tail -> group_aux v list |> List.map (fun (ex, rem) -> group rem tail |> List.map (fun x -> ex :: x)) |> List.flatten
+  end
