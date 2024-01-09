@@ -329,3 +329,73 @@ let rec group list sizes =
   | [] -> [[]]
   | v :: tail -> group_aux v list |> List.map (fun (ex, rem) -> group rem tail |> List.map (fun x -> ex :: x)) |> List.flatten
   end
+
+
+;; print_test_result (fun () -> group [] [] = [])
+
+let rec length_sort = function
+| [] -> []
+| v :: tail -> let (l, r) = List.partition (fun x -> length x < length v) tail in
+(length_sort l) @ [v] @ (length_sort r)
+
+let test () =
+  let expected = [[1];[1;2];[1;2;3;4];[1;2;3;4;5;6]] in
+  let actual = length_sort [[1;2;3;4];[1;2];[1;2;3;4;5;6];[1]] in
+  actual = expected
+
+;; print_test_result test
+
+let frequency elem list =
+  let rec loop list acc =
+    match list with [] -> acc | v :: tail -> loop tail (acc + (if v = elem then 1 else 0))
+  in loop list 0
+
+let rec frequency_sort list = match list with
+| [] -> []
+| v :: tail -> let (l,r) = List.partition (fun x -> frequency x list < frequency v list) tail in (frequency_sort l) @ [v] @ (frequency_sort r)
+
+let test () =
+  let actual = frequency_sort [["a"; "b"; "c"]; ["d"; "e"]; ["f"; "g"; "h"]; ["d"; "e"];
+  ["i"; "j"; "k"; "l"]; ["m"; "n"]; ["o"]] in
+  let expected =
+[["i"; "j"; "k"; "l"]; ["o"]; ["a"; "b"; "c"]; ["f"; "g"; "h"]; ["d"; "e"];
+["d"; "e"]; ["m"; "n"]] in actual = expected
+
+  ;; print_test_result test
+
+;; print_test_result (fun () -> true)
+
+let is_prime int =
+  int <> 1 && List.for_all (fun x -> (int mod x) <> 0) (range 2 (int - 1))
+
+let test () = is_prime 7 = true && not (is_prime 1) && not (is_prime 100)
+;; print_test_result test
+
+let rec gcd a b = if b = 0 then a else gcd b (a mod b)
+
+let test () = 3 = gcd 6 3
+;; print_test_result test
+
+let coprime a b = 1 = gcd a b
+
+let test () = coprime 7 8
+;; print_test_result test
+
+let phi n =
+  let rec loop i acc =
+    if i > n then acc else loop (succ i) (acc + (if coprime i n then 1 else 0)) 
+  in if n = 1 then 1 else loop 1 0
+
+let test () = 1 = phi 1 && 4 = phi 10
+;; print_test_result test
+
+let factorization n =
+  let rec loop i acc =
+    let current = (List.fold_right ( * ) acc 1) in
+    if current = n then acc else
+      if is_prime i && current mod i = 0 then loop i (i :: acc) else loop (succ i) acc
+  in loop 2 []
+
+let test () = [2;2;3] = factorization 12
+;; print_test_result test
+
