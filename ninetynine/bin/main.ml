@@ -8,9 +8,9 @@ let make_call_counter (func : 'a -> unit) =
 
 
 let print_bool bool = print_endline (string_of_bool bool)
-
 let print_result = make_call_counter print_bool
 let print_test_result test = print_result (test ())
+let print_skip = print_result true
 
 let sublist list sublist =
   List.for_all (fun x -> List.mem x list) sublist
@@ -391,11 +391,34 @@ let test () = 1 = phi 1 && 4 = phi 10
 
 let factorization n =
   let rec loop i acc =
-    let current = (List.fold_right ( * ) acc 1) in
-    if current = n then acc else
-      if is_prime i && current mod i = 0 then loop i (i :: acc) else loop (succ i) acc
-  in loop 2 []
+    if acc = 1 then [] else
+      if (acc mod i = 0) then i :: loop i (acc / i) else loop (i + 1) acc
+  in loop 2 n
 
 let test () = [2;2;3] = factorization 12
 ;; print_test_result test
+
+let rle_factorization n = List.map (fun (x,y) -> (y,x)) (encode (factorization n))
+
+let test () =
+  let actual = rle_factorization 315 in
+  let expected = [(3, 2); (5, 1); (7, 1)] in
+  actual = expected
+
+;; print_test_result test
+
+let phi_improved n =
+  let power n p = let rec aux n p acc = if p = 0 then acc else aux n (p - 1) (n * acc) in aux n p 1 in
+  let rec loop list acc = 
+    match list with
+    | [] -> acc
+    | (p,m) :: tail -> loop tail (acc * (p - 1) * (power p (m - 1))) in
+  let factors = rle_factorization n in loop factors 1
+
+let test () =
+  4 = phi_improved 10 && 12 = phi_improved 13
+
+;; print_test_result test
+
+;; print_skip (* skipping timing the two different implementations of phi *)
 
