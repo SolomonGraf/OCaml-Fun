@@ -54,3 +54,8 @@ let rec fold_tree branch_fold root_fold tree =
 
 let apply_opt x f = match x with None -> None | Some x -> Some (f x)
 let bind x f = match x with None -> None | Some x -> f x
+
+(* Unit functions *)
+
+let rec repeat (f : unit -> unit) (n : int) : unit = 
+  if n > 0 then f (); repeat f (n - 1)
