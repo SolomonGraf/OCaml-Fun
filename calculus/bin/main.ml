@@ -1,7 +1,7 @@
 type differentiable = float -> float
 
 type vector2d = float * float
-type differentiable_2d = point2d -> float
+type differentiable_2d = vector2d -> float
 
 let test_functions : differentiable list = [(fun x -> 2.0 *. x); exp; log]
 let const (x : float) = (fun (_ : float) -> x)
