@@ -105,3 +105,8 @@ let x2y2 = function
 | _ -> failwith "Incorrect dimensions"
 
 let path_test = integrate_path x2y2 [(fun x -> x); (fun x -> x)] 0. (Float.sqrt 2.)
+
+let rec determinant (matrix : matrix) : float =
+  let heads = List.map (List.hd) matrix in
+  (* let tails = List.map (List.tl) matrix in *)
+  List.fold_left (+.) 0. heads
